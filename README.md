@@ -70,15 +70,20 @@ pip install -r requirements.txt
 
 ## Usage
 
-### Using the Python interface
+### Using the Python interface (Multi-GPU)
 
 If you installed the package, you can use it as follows:
 
 ```python
+import tensorflow as tf
 from stable_diffusion_tf.stable_diffusion import Text2Image
 from PIL import Image
 
+gpus = tf.config.list_physical_devices('GPU')
+strategy = tf.distribute.MirroredStrategy(gpus)
+
 generator = Text2Image(
+    mirrored_strategy=strategy,
     img_height=512,
     img_width=512,
     jit_compile=False,
@@ -88,7 +93,7 @@ img = generator.generate(
     num_steps=50,
     unconditional_guidance_scale=7.5,
     temperature=1,
-    batch_size=1,
+    batch_size=32,
 )
 Image.fromarray(img[0]).save("output.png")
 ```
